@@ -27,11 +27,13 @@
 // ).listen(8080)
 
 const express = require('express')
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 // const { add, sub } = require('./calculater')
 const url = "mongodb://localhost:27017"
 const client = new MongoClient(url);
 const app = express();
+
+app.use(express.json())
 
 async function getData(req, res) {
     await client.connect();
@@ -43,10 +45,58 @@ async function getData(req, res) {
     // console.log(data);
 }
 
+async function insertData(data) {
+    await client.connect();
+    const db = client.db("NodeAPI");
+    const collection = db.collection('User');
+    const insertUserData = await collection.insertOne(data)
+    console.log(insertUserData);
+
+}
+// insertData();
+
+async function updateData(id, data) {
+    await client.connect();
+    const db = client.db("NodeAPI");
+    const collection = db.collection('User');
+    const insertUserData = await collection.updateOne({ _id: new ObjectId(id) }, {
+        $set: data
+    })
+
+    return insertUserData
+}
+
+async function deleteData(id) {
+    await client.connect();
+    const db = client.db("NodeAPI");
+    const collection = db.collection('User');
+    const deleteUserData = await collection.deleteOne({ _id: new ObjectId(id) })
+
+    return deleteUserData
+
+}
+
 app.get('/getData', async (req, res) => {
     const data = await getData();
     res.send(data)
 })
+
+app.post('/insertData', async (req, res) => {
+    const data = await insertData(req.body);
+    res.send(data)
+})
+
+app.put('/updateData/:id', async (req, res) => {
+    const data = await updateData(req.params.id, req.body);
+    res.send(data)
+})
+
+app.delete('/deleteData/:id', async (req, res) => {
+    const data = await deleteData(req.params.id);
+    res.send(data)
+})
+
+
 
 // app.get('/add/:num1/:num2', (req, res) => {
 //     // res.send(add(req.query.num1, req.query.num2));
