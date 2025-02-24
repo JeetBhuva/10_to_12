@@ -1,21 +1,19 @@
-const mongoose = require('mongoose');
+const express = require('express')
 
-mongoose.connect('mongodb://127.0.0.1:27017/NodeAPI')
+const app = express();
 
-const userSchema = {
-    name: String,
-    email: String,
-    mobile: Number,
-    age: Number
-}
+app.use(express.json())
 
-const MyModel = mongoose.model('User', userSchema);
+require('./db/db')
 
-const main = async (req, res) => {
+const user = require('./controllers/user.controllers')
 
-    const data = await MyModel.insertOne({ name: "Jeet", email: "jeet@gmail.com", mobile: 9812345678, age: 20 })
+// user API
+app.post('/register', user.userRegister)
+app.post('/login', user.userLogin)
 
-    // console.log(data);
-}
 
-main();
+
+
+app.listen(5000, () => console.log("Server running on port 5000"));
+
