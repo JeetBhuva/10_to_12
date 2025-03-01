@@ -1,5 +1,7 @@
 const MyModel = require('../models/userSchema')
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const privateKey = "J@e123e#t$"
 
 const userRegister = async (req, res) => {
     const { name, email, password, mobile, age } = req.body
@@ -28,12 +30,16 @@ const userLogin = async (req, res) => {
         const comparePassword = await bcrypt.compare(password, data.password);
 
         if (comparePassword) {
-            res.send('User Login Successful')
+
+            const token = await jwt.sign({ email: data.email, password: data.password }, privateKey, { expiresIn: '1h' })
+
+            // console.log(token);
+
+            res.status(201).send({ msg: 'User Login Successful', token, data: data })
         } else {
             res.send('Wrong Password')
         }
     }
-
 }
 
 module.exports = {
